@@ -22,5 +22,5 @@ cd lgw
 git clone git@github.com:martynrees/Wbx-Calling-LGW.git
 docker build -t lgw .
 docker run -d -p 5000:5000 lgw
-Browse on your local machine to http://127.0.0.1:5000 (also accessable from other machines)
+Browse to http://docker-ip:5000 
 ```
