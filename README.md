@@ -26,3 +26,7 @@ docker build -t lgw .
 docker run -d -p 5000:5000 lgw
 Browse to http://docker-ip:5000 
 ```
+
+The web interface takes in a range of attributes to generate an ios-xe config that will register a CSR1k virtual appliance to Webex Calling as a LGW.
+A valid AX licence for the required BW and smart account is required to licence the appliance. If left unlicenced then the CSR1k will run in demo mode with limited BW, which may be appropriate for initial PoC testing.
+Ensure that all fields are completed correctly and once submitted the application will return an example config that will register the CUBE to Wbx Calling.
