@@ -1,0 +1,252 @@
+! Begin of initial config - you will need to paste this in to the console
+interface {{ variables.interface }}
+ ip address {{ variables.int_ip }}  {{ variables.int_subnet }}
+ no shut
+!
+ip route 0.0.0.0 0.0.0.0 {{ variables.int_gateway }}
+!
+netconf-yang
+!
+aaa new-model
+aaa authorization exec default local
+!
+username {{ variables.username }} privilege 15 secret {{ variables.password }}
+!
+line con 0
+ stopbits 1
+line vty 0 4
+ exec-timeout 60 0
+ transport input ssh
+!
+!
+license boot level ax
+platform hardware throughput level MB {{ variables.lic_bandwidth }}
+!
+hostname {{ variables.router_name }}
+!
+!
+logging buffered 6400000
+no logging console
+no logging monitor
+!
+archive
+ path flash://backup-
+ write-memory
+ time-period 10080
+!
+clock timezone ACST 9 30
+clock summer-time ACDT recurring 1 Sun Oct 2:00 1 Sun Apr 3:00
+!
+ip name-server {{ variables.dns }}
+ip domain name {{ variables.domain_name }}
+ip domain lookup source-interface {{ variables.interface }}
+!
+service call-home
+license smart transport callhome
+!license smart enable
+call-home
+no http secure server-identity-check
+ profile "CiscoTAC-1"
+  active
+  destination transport-method http
+  no destination transport-method email
+!
+end
+license smart register idtoken {{ variables.smart_token }}
+!
+conf t
+!
+password encryption aes
+!
+ip tftp source-interface {{ variables.interface }}
+!
+ntp server {{ variables.ntp_server}}
+!
+!
+key config-key password-encrypt {{ variables.password_encrypt }}
+!
+crypto pki trustpoint WebexTP
+revocation-check crl
+!
+!
+sip-ua
+crypto signaling default trustpoint WebexTP cn-san-validate server
+transport tcp tls v1.2
+!
+crypto pki trustpool import clean url http://www.cisco.com/security/pki/trs/ios_core.p7b
+!
+!
+voice class sip-profiles 100
+ request REINVITE sdp-header Audio-Attribute modify "inactive" "sendrecv"
+ request ACK sdp-header Audio-Attribute modify "sendonly" "sendrecv"
+!
+Voice service voip
+ mode border-element license capacity {{ variables.cube_capacity }}
+  ip address trusted list
+    ipv4 199.59.64.0 255.255.255.128
+    ipv4 199.59.67.0 255.255.255.128
+    ipv4 {{ variables.sip_networks }}
+  !
+  allow-connections sip to sip
+  media statistics
+  media bulk-stats
+  media flow-through
+  media-address range {{ variables.int_ip }} {{ variables.int_ip }} port-range 8000 48000
+  no supplementary-service sip refer
+  no supplementary-service sip handle-replaces
+  fax protocol pass-through g711ulaw
+  stun
+    stun flowdata agent-id 1 boot-count 4
+    stun flowdata shared-secret 0 Password123$
+  sip
+    g729 annexb-all
+    rel1xx disable
+    early-offer forced
+    asymmetric payload full
+    midcall-signaling passthru
+    sip-profiles 100
+!
+!
+voice class sip-profiles 200
+rule 1 request ANY sip-header SIP-Req-URI modify "sips:(.*)" "sip:\1"
+rule 2 request ANY sip-header To modify "<sips:(.*)" "<sip:\1"
+rule 3 request ANY sip-header From modify "<sips:(.*)" "<sip:\1"
+rule 4 request ANY sip-header Contact modify "<sips:(.*)>" "<sip:\1;transport=tls>"
+rule 5 response ANY sip-header To modify "<sips:(.*)" "<sip:\1"
+rule 6 response ANY sip-header From modify "<sips:(.*)" "<sip:\1"
+rule 7 response ANY sip-header Contact modify "<sips:(.*)" "<sip:\1"
+rule 8 request ANY sip-header From modify ">" ";otg={{ variables.webex_otg }}>"
+rule 9 request ANY sip-header P-Asserted-Identity modify "sips:(.*)" "sip:\1"
+!
+!
+voice class sip-copylist 200
+ sip-header From
+ sip-header Contact
+!
+voice class codec 99
+codec preference 1 g722-64
+codec preference 1 g711ulaw
+codec preference 2 g711alaw
+codec preference 3 g729r8
+!
+!
+voice class srtp-crypto 200
+crypto 1 AES_CM_128_HMAC_SHA1_80
+!
+voice class stun-usage 200
+stun usage firewall-traversal flowdata
+!
+! Broadcloud Config
+voice class tenant 200
+registrar dns:{{ variables.webex_domain }} scheme sips expires 240 refresh-ratio 50 tcp tls
+  credentials number {{ variables.webex_LGU }} username {{ variables.webex_username }} password 0 {{ variables.webex_password }} realm BroadWorks
+  authentication username {{ variables.webex_username }} password 0 {{ variables.webex_password }} realm BroadWorks
+  authentication username {{ variables.webex_username }} password 0 {{ variables.webex_password }} realm {{ variables.webex_domain }}
+  no remote-party-id
+  sip-server dns:{{ variables.webex_domain }}
+  connection-reuse
+  srtp-crypto 200
+  session transport tcp tls
+  url sips
+  error-passthru
+  asserted-id pai
+  bind control source-interface {{ variables.interface }}
+  bind media source-interface {{ variables.interface }}
+  no pass-thru content custom-sdp
+  sip-profiles 200
+  outbound-proxy dns:{{ variables.webex_proxy }}
+  privacy-policy passthru
+!
+!
+voice class tenant 301
+  bind control source-interface {{ variables.interface }}
+  bind media source-interface {{ variables.interface }}
+  no pass-thru content custom-sdp
+!
+!
+voice translation-rule 200
+ rule 1 /0\(.*\)/ /+61\1/
+!
+voice translation-rule 300
+ rule 1 /^\+61\(.*\)/ /0\1/
+ rule 2 /^\+\(.*\)/ /0011\1/
+ rule 3 /^\([2-9]........\)/ /0\1/
+!
+voice translation-rule 301
+ rule 1 /^\+61\(1.*\)/ /\1/
+ rule 2 /^\+61\(.*\)/ /0\1/
+ rule 3 /^\+\(.*\)/ /0011\1/
+ rule 4 /^\([2-9]........\)/ /0\1/
+!
+voice translation-profile webex-out
+ translate called 200
+!
+voice translation-profile pstn-out
+ translate called 301
+ translate calling 300
+ translate redirect-called 300
+!
+voice class uri 200 sip
+ pattern :8934
+!
+!
+dial-peer voice 200 voip
+ description Outgoig dial-peer to Webx
+ translation-profile outgoing webex-out
+ destination-pattern .T
+ session protocol sipv2
+ session target sip-server
+ voice-class codec 99
+ dtmf-relay rtp-nte
+ voice-class stun-usage 200
+ no voice-class sip localhost
+ voice-class sip tenant 200
+ no vad
+ srtp
+!
+dial-peer voice 300 voip
+ description Outgoing dial-peer to PSTN
+ translation-profile outgoing pstn-out
+ destination-pattern .T
+ session protocol sipv2
+ session target ipv4:{{ variables.sip_sbcip }}
+ voice-class codec 99
+ dtmf-relay rtp-nte
+ voice-class sip tenant 300
+ voice-class sip profiles 300
+ voice-class sip copy-list 200
+ no vad
+!
+voice class dpg 300
+ dial-peer 300 preference 1
+!
+voice class dpg 200
+ dial-peer 200 preference 1
+!
+dial-peer voice 201 voip
+ description Incoming dial-peer from Webex
+ session protocol sipv2
+ destination dpg 300
+ voice-class sip copy-list 200
+ incoming uri via 200
+ voice-class codec 99
+ dtmf-relay rtp-nte
+ voice-class stun-usage 200
+ voice-class sip tenant 200
+ no vad
+ srtp
+!
+dial-peer voice 301 voip
+ description Incoming dial-peer from PSTN
+ session protocol sipv2
+ destination dpg 200
+ incoming uri via 300
+ voice-class codec 99
+ dtmf-relay rtp-nte
+ voice-class sip tenant 301
+ no vad
+!
+!
+end
+wr memory
+!

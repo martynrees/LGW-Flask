@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form method="POST" action="/">
+    This page generates a working configuration that will register a LGW to Webex Calling for local PSTN access via a neighbour SIP trunk.<br>
+    This configuration is provided as a basic working example, and can be modified to suit by editing the base_config.j2 file prior to executing or by editing the output prior to copying to router.<br>
+    Further modifications such as SIP headers and translation patterns may be required based on your individual SIP provider.<br>
+    Configuration is based on a CSR1k virtual router
+    <br>
+    <br>
+    <b> Enter in the router details below - All data must be in correct ios-xe format.</b><br>
+    Default values can be edited and are provided in order to save modifying. <br>
+    {{ form.router_name.label }} {{ form.router_name() }}<br>
+    {{ form.cube_capacity.label }} {{ form.cube_capacity() }}<br>
+    {{ form.smart_token.label }} {{ form.smart_token() }}<br>
+    {{ form.lic_bandwidth.label }} {{ form.lic_bandwidth() }}<br>
+    {{ form.dns.label }} {{ form.dns() }}<br>
+    {{ form.domain_name.label }} {{ form.domain_name() }}<br>
+    {{ form.interface.label }} {{ form.interface() }}<br>
+    {{ form.int_ip.label }} {{ form.int_ip() }}<br>
+    {{ form.int_subnet.label }} {{ form.int_subnet() }}<br>
+    {{ form.int_gateway.label }} {{ form.int_gateway() }}<br>
+    {{ form.username.label }} {{ form.username() }}<br>
+    {{ form.password.label }} {{ form.password() }}<br>
+    {{ form.ntp_server.label }} {{ form.ntp_server() }}<br>
+    {{ form.password_encrypt.label }} {{ form.password_encrypt() }}<br>
+    <br>
+    <b> The following section covers the Webex SIPS trunk registration.<br>
+        Enter details as per config generated from WCH LGW page.<br></b>
+        Note. SIP Networks field must be in IP & subnet format x.x.x.x y.y.y.y <br>
+    {{ form.sip_networks.label }} {{ form.sip_networks() }}<br>
+    {{ form.webex_otg.label }} {{ form.webex_otg() }}<br>
+    {{ form.webex_domain.label }} {{ form.webex_domain() }}<br>
+    {{ form.webex_LGU.label }} {{ form.webex_LGU() }}<br>
+    {{ form.webex_username.label }} {{ form.webex_username() }}<br>
+    {{ form.webex_password.label }} {{ form.webex_password() }}<br>
+    {{ form.webex_proxy.label }} {{ form.webex_proxy() }}<br>
+    {{ form.sip_sbcip.label }} {{ form.sip_sbcip() }}<br>
+    <b> Note. If config does not render it means you have a field wrong!</b>
+    <input type="submit" value="Submit">
+</form>
+
+{% endblock %}
