@@ -7,6 +7,7 @@ There are two ways that this application can be run.
 1. As a python virtual environment.
 ```
 mkdir lgw
+cd lgw
 git clone git@github.com:martynrees/Wbx-Calling-LGW.git
 virtualenv env
 source env/bin/activate
@@ -17,6 +18,7 @@ Browse on your local machine to http://127.0.0.1:5000
 2. As a Docker container.
 ```
 mkdir lgw
+cd lgw
 git clone git@github.com:martynrees/Wbx-Calling-LGW.git
 docker build -t lgw .
 docker run -d -p 5000:5000 lgw
