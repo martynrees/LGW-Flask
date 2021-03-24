@@ -32,4 +32,6 @@ A valid AX licence for the required BW and smart account is required to licence 
 Ensure that all fields are completed correctly and once submitted the application will return an example config that will register the CUBE to Wbx Calling.
 
 It is assumed that the user has knowledge (and appropriate access) to completed the LGW configuration through WCH. References can also be found here:
+```
 https://help.webex.com/en-us/32gfts/Webex-Calling-Configuration-Workflow#Overview-of-Webex-Calling
+```
