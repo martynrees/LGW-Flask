@@ -30,3 +30,6 @@ Browse to http://docker-ip:5000
 The web interface takes in a range of attributes to generate an ios-xe config that will register a CSR1k virtual appliance to Webex Calling as a LGW.
 A valid AX licence for the required BW and smart account is required to licence the appliance. If left unlicenced then the CSR1k will run in demo mode with limited BW, which may be appropriate for initial PoC testing.
 Ensure that all fields are completed correctly and once submitted the application will return an example config that will register the CUBE to Wbx Calling.
+
+It is assumed that the user has knowledge (and appropriate access) to completed the LGW configuration through WCH. References can also be found here:
+https://help.webex.com/en-us/32gfts/Webex-Calling-Configuration-Workflow#Overview-of-Webex-Calling
