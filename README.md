@@ -3,6 +3,8 @@
 This Flask application will use a Jinja2 template to generate the configuration required for an CSR1k ios-xe router to be able to register to your Webex Calling tenant and provide local SIP PSTN gateway access.
 The configuration provided is an example only and may require additional configuration in order to work with individual SIP providers.
 
+The solution is built on Python, Jinja2, Flask, WTForms and Bootstrap.
+
 There are two ways that this application can be run.
 1. As a python virtual environment.
 ```
