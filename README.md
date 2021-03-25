@@ -5,6 +5,8 @@ The configuration provided is an example only and may require additional configu
 
 The solution is built on Python, Jinja2, Flask, WTForms and Bootstrap.
 
+![GUI](lgw.png)
+
 There are two ways that this application can be run.
 1. As a python virtual environment.
 ```
