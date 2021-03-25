@@ -8,7 +8,7 @@ The solution is built on Python, Jinja2, Flask, WTForms and Bootstrap.
 ![GUI](lgw.png)
 
 *There are two ways that this application can be run.*
-1. As a python virtual environment.
+1. As a python virtual environment (assuming you already have Python and virtualenv installed on your machine.).
 ```
 mkdir lgw
 cd lgw
@@ -19,7 +19,7 @@ pip3 install -r requirements.txt
 python3 server.py
 Browse on your local machine to http://127.0.0.1:5000
 ```
-2. As a Docker container.
+2. As a Docker container (assuming you already have docker installed on your machine).
 ```
 mkdir lgw
 cd lgw
